@@ -9,25 +9,28 @@ const ShowList = () => {
     address: "",
   });
 
-  // 데이터 가져오기 (READ)
+  // MockAPI URL
+  const mockApiUrl = "https://67288605270bd0b97555ef13.mockapi.io/sample";
+
+  // Fetch all users from MockAPI
   const fetchUsers = () => {
-    fetch("http://localhost:3000/users")
+    fetch(mockApiUrl)
       .then((response) => response.json())
       .then((data) => setUsers(data))
       .catch((error) => console.error("Error fetching data:", error));
   };
 
   useEffect(() => {
-    fetchUsers(); // 초기 렌더링 시 데이터 가져오기
+    fetchUsers();
   }, []);
 
-  // 사용자 추가 (CREATE)
+  // Add a new user
   const addUser = () => {
     if (!formData.name || !formData.email || !formData.phone || !formData.address) {
       alert("Please fill out all fields.");
       return;
     }
-    fetch("http://localhost:3000/users", {
+    fetch(mockApiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
@@ -36,16 +39,17 @@ const ShowList = () => {
       .then((newUser) => {
         setUsers([...users, newUser]);
         setFormData({ name: "", email: "", phone: "", address: "" });
-      });
+      })
+      .catch((error) => console.error("Error adding user:", error));
   };
 
-  // 사용자 수정 (UPDATE)
+  // Modify an existing user
   const modifyUser = (id) => {
     const updatedName = prompt("Enter new name:");
     if (!updatedName) return;
 
     const updatedUser = { ...users.find((user) => user.id === id), name: updatedName };
-    fetch(`http://localhost:3000/users/${id}`, {
+    fetch(`${mockApiUrl}/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedUser),
@@ -53,12 +57,13 @@ const ShowList = () => {
       .then((response) => response.json())
       .then((modifiedUser) => {
         setUsers(users.map((user) => (user.id === id ? modifiedUser : user)));
-      });
+      })
+      .catch((error) => console.error("Error modifying user:", error));
   };
 
-  // 사용자 삭제 (DELETE)
+  // Delete a user
   const deleteUser = (id) => {
-    fetch(`http://localhost:3000/users/${id}`, { method: "DELETE" })
+    fetch(`${mockApiUrl}/${id}`, { method: "DELETE" })
       .then(() => setUsers(users.filter((user) => user.id !== id)))
       .catch((error) => console.error("Error deleting user:", error));
   };
@@ -67,7 +72,6 @@ const ShowList = () => {
     <div className="container mt-5">
       <h1 className="text-center">User List</h1>
 
-      {/* Add User Form */}
       <div className="mb-3 d-flex justify-content-between">
         <input
           type="text"
@@ -102,12 +106,10 @@ const ShowList = () => {
         </button>
       </div>
 
-      {/* Bring User Data Button */}
       <button className="btn btn-primary mb-3" onClick={fetchUsers}>
         Bring user data
       </button>
 
-      {/* User Table */}
       <table className="table table-striped">
         <thead>
           <tr>
